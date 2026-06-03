@@ -107,11 +107,28 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 """, unsafe_allow_html=True)
 
 
+# ── Auto-train on startup if model is missing (Streamlit Cloud support) ───────
+def _ensure_model_exists():
+    """Train the model automatically if model.pkl doesn't exist."""
+    if not os.path.exists(MODEL_PATH):
+        import subprocess
+        os.makedirs(os.path.join(ROOT, "model"), exist_ok=True)
+        with st.spinner("🏋️ First launch: training model... (this takes ~5 seconds)"):
+            result = subprocess.run(
+                [sys.executable, os.path.join(ROOT, "src", "train.py")],
+                capture_output=True, text=True, cwd=ROOT
+            )
+        if result.returncode != 0:
+            st.error(f"Model training failed:\n{result.stderr[-500:]}")
+            return False
+        st.success("Model trained successfully!")
+        st.rerun()
+    return True
+
 # ── Cached loaders ─────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
     if not os.path.exists(MODEL_PATH):
-        st.error("⚠️ model.pkl not found. Please run `python src/train.py` first.")
         return None
     return joblib.load(MODEL_PATH)
 
@@ -156,10 +173,13 @@ with st.sidebar:
     st.markdown("""
     <small>
     <b>MLOps Pipeline</b><br>
-    Dataset → Preprocessing → Training → Evaluation → Docker → Kubernetes → Streamlit<br><br>
-    <b>Stack:</b> Python · Scikit-Learn · Flask · Docker · GitHub Actions · Kubernetes
+    Dataset &rarr; Preprocessing &rarr; Training &rarr; Evaluation &rarr; Docker &rarr; Kubernetes &rarr; Streamlit<br><br>
+    <b>Stack:</b> Python &middot; Scikit-Learn &middot; Streamlit &middot; Docker &middot; GitHub Actions &middot; Kubernetes
     </small>
     """, unsafe_allow_html=True)
+
+# ── Ensure model exists (auto-train on Streamlit Cloud first boot) ─────────────
+_ensure_model_exists()
 
 
 model   = load_model()
