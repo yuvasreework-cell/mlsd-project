@@ -1,0 +1,161 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .github/workflows/ci.yml
+# GitHub Actions CI/CD Pipeline — Heart Disease Prediction MLOps
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggers:
+#   - Push to main or develop branches
+#   - Pull requests to main
+#
+# Pipeline stages:
+#   1. test      → Install deps, run pytest, validate project structure
+#   2. build     → Build Docker image, push to DockerHub
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: MLOps CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+env:
+  DOCKER_IMAGE: yuvasreedock/heart-disease-mlops
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 1: TEST — Unit tests + project validation
+  # ════════════════════════════════════════════════════════════════════════════
+  test:
+    name: 🧪 Test & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set Up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: ✅ Validate Project Structure
+        run: |
+          echo "=== Validating directory structure ==="
+          for path in src/preprocess.py src/train.py src/evaluate.py \
+                      app/streamlit_app.py tests/test_pipeline.py \
+                      k8s/deployment.yaml k8s/service.yaml \
+                      Dockerfile requirements.txt README.md; do
+            if [ -f "$path" ]; then
+              echo "✅ $path"
+            else
+              echo "❌ MISSING: $path" && exit 1
+            fi
+          done
+
+      - name: 🗄️ Generate Dataset
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, '.')
+          from src.preprocess import _generate_synthetic_data, load_dataset
+          import os
+          os.makedirs('data', exist_ok=True)
+          df = _generate_synthetic_data(n=303, seed=42)
+          df.to_csv('data/heart.csv', index=False)
+          print(f'Dataset generated: {df.shape}')
+          "
+
+      - name: 🏋️ Train Model
+        run: |
+          python src/train.py
+
+      - name: 📊 Run Evaluation
+        run: |
+          python src/evaluate.py
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          pytest tests/test_pipeline.py -v --tb=short
+
+      - name: 📤 Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: |
+            model/metrics.json
+            model/*.png
+          retention-days: 7
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 2: BUILD — Docker build + DockerHub push (only on main)
+  # ════════════════════════════════════════════════════════════════════════════
+  build:
+    name: 🐳 Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🗄️ Prepare Dataset & Model for Docker
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -c "
+          import sys; sys.path.insert(0, '.')
+          from src.preprocess import _generate_synthetic_data
+          import os
+          os.makedirs('data', exist_ok=True)
+          df = _generate_synthetic_data(n=303, seed=42)
+          df.to_csv('data/heart.csv', index=False)
+          "
+          python src/train.py
+          python src/evaluate.py
+
+      - name: 🔐 Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏷️ Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: 🏗️ Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🐳 Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: ✅ Verify Image
+        run: |
+          docker pull ${{ env.DOCKER_IMAGE }}:latest
+          echo "✅ Docker image successfully pushed to DockerHub"
+          echo "Image: ${{ env.DOCKER_IMAGE }}:latest"

@@ -1,0 +1,52 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# k8s/service.yaml
+# Kubernetes Service — Heart Disease Prediction MLOps
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: heart-disease-service
+  namespace: default
+  labels:
+    app: heart-disease-mlops
+    component: ml-serving
+  annotations:
+    description: "Exposes the Heart Disease Prediction Streamlit App"
+spec:
+  # ── Use NodePort for local Kubernetes (minikube / kind)
+  # ── Change to LoadBalancer for cloud providers
+  type: NodePort
+
+  selector:
+    app: heart-disease-mlops
+
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80          # Service port (external access)
+      targetPort: 8501  # Container port (Streamlit)
+      nodePort: 30080   # NodePort (accessible on <node-ip>:30080)
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Horizontal Pod Autoscaler (HPA) — optional, for scaling under load
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heart-disease-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heart-disease-mlops
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

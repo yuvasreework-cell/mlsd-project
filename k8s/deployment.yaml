@@ -1,0 +1,102 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# k8s/deployment.yaml
+# Kubernetes Deployment — Heart Disease Prediction MLOps
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heart-disease-mlops
+  namespace: default
+  labels:
+    app: heart-disease-mlops
+    version: "1.0"
+    component: ml-serving
+  annotations:
+    description: "Heart Disease Prediction Streamlit App — MLOps Pipeline"
+    deployment.kubernetes.io/revision: "1"
+spec:
+  # ── Scaling ────────────────────────────────────────────────────────────────
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: heart-disease-mlops
+
+  # ── Rolling update strategy ────────────────────────────────────────────────
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1          # Allow 1 extra pod during rollout
+      maxUnavailable: 0    # Never go below desired replica count
+
+  template:
+    metadata:
+      labels:
+        app: heart-disease-mlops
+        version: "1.0"
+    spec:
+      # ── Security context ────────────────────────────────────────────────────
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      containers:
+        - name: heart-disease-app
+          image: yuvasreedock/heart-disease-mlops:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: streamlit
+              containerPort: 8501
+              protocol: TCP
+
+          # ── Environment variables ─────────────────────────────────────────
+          env:
+            - name: STREAMLIT_SERVER_PORT
+              value: "8501"
+            - name: STREAMLIT_SERVER_HEADLESS
+              value: "true"
+            - name: STREAMLIT_BROWSER_GATHER_USAGE_STATS
+              value: "false"
+
+          # ── Resource limits & requests ────────────────────────────────────
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+
+          # ── Liveness probe — restarts pod if app crashes ──────────────────
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # ── Readiness probe — removes pod from LB if not ready ────────────
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          # ── Volume mounts ─────────────────────────────────────────────────
+          volumeMounts:
+            - name: monitoring-logs
+              mountPath: /app/monitoring
+
+      volumes:
+        - name: monitoring-logs
+          emptyDir: {}
+
+      # ── Restart policy ──────────────────────────────────────────────────────
+      restartPolicy: Always
