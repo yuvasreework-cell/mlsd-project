@@ -3,6 +3,11 @@
 ## Project Title
 **Heart Disease Prediction using an End-to-End MLOps Pipeline**
 
+## Live Deployment
+- **Streamlit App:** https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/
+- **GitHub Repository:** https://github.com/yuvasreework-cell/mlsd-project
+- **DockerHub Image:** https://hub.docker.com/r/yuvasreedock/heart-disease-mlops
+
 ## Abstract
 This project implements a complete Machine Learning System Design (MLSD) pipeline for predicting heart disease using the UCI Cleveland Heart Disease Dataset. The pipeline covers data preprocessing, model training and evaluation, web application deployment via Streamlit, containerization with Docker, orchestration with Kubernetes, and continuous integration with GitHub Actions.
 

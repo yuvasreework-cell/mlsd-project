@@ -1,14 +1,16 @@
-# Heart Disease Prediction — MLOps Pipeline
+# 🫀 Heart Disease Prediction — MLOps Pipeline
 
 <div align="center">
 
 [![CI Pipeline](https://github.com/yuvasreework-cell/mlsd-project/actions/workflows/ci.yml/badge.svg)](https://github.com/yuvasreework-cell/mlsd-project/actions/workflows/ci.yml)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/)
 [![Docker Image](https://img.shields.io/badge/Docker-yuvasreedock%2Fheart--disease--mlops-blue?logo=docker)](https://hub.docker.com/r/yuvasreedock/heart-disease-mlops)
 [![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](https://python.org)
-[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.5-orange?logo=scikitlearn)](https://scikit-learn.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3%2B-orange?logo=scikitlearn)](https://scikit-learn.org)
 
 **An end-to-end MLOps pipeline demonstrating model training, CI/CD, Dockerization, Kubernetes deployment, and Streamlit hosting.**
+
+### 🌐 [**Live Demo → https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/**](https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/)
 
 </div>
 
@@ -153,7 +155,13 @@ python src/train.py
 python src/evaluate.py
 ```
 
-### 5. Run Streamlit App Locally
+### 5. 🌐 Live Streamlit App
+Directly access the deployed app:
+```
+https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/
+```
+
+### 6. Run Streamlit Locally
 ```bash
 streamlit run app/streamlit_app.py
 ```
@@ -222,17 +230,18 @@ kubectl top pods
 
 ---
 
-## Model Performance
+## 📊 Model Performance
 
 | Metric | Score |
 |--------|-------|
-| Accuracy | ~84% |
-| Precision | ~82% |
-| Recall | ~88% |
-| F1-Score | ~85% |
-| ROC-AUC | ~91% |
+| **Accuracy** | **85.0%** |
+| **Precision** | **85.2%** |
+| **Recall** | **82.1%** |
+| **F1-Score** | **83.6%** |
+| **ROC-AUC** | **93.9%** |
+| CV Mean Accuracy | 83.5% |
 
-*Results may vary slightly due to random seed in train/test split.*
+*Trained on UCI Cleveland Heart Disease Dataset (297 clean rows, 80/20 split, stratified).*
 
 ---
 
@@ -253,8 +262,8 @@ The pipeline automatically triggers on every push to `main`:
 ### Required Secrets
 Set these in GitHub → Settings → Secrets and Variables → Actions:
 ```
-DOCKERHUB_USERNAME = yuvasreedock
-DOCKERHUB_TOKEN    = <your DockerHub access token>
+DOCKERHUB_USERNAME = yuvasreedock      ✓ configured
+DOCKERHUB_TOKEN    = <your token>      ✓ configured
 ```
 
 ---
@@ -302,10 +311,14 @@ DOCKERHUB_TOKEN    = <your DockerHub access token>
 
 ---
 
-## Author
+## 👤 Author
 
 **Yuvasree**  
 University MLSD Project — Heart Disease Prediction MLOps Pipeline
+
+🌐 **Live App:** https://mlsd-project-mbxbcwepph6caqrngbfm3d.streamlit.app/  
+📦 **DockerHub:** https://hub.docker.com/r/yuvasreedock/heart-disease-mlops  
+🔗 **GitHub:** https://github.com/yuvasreework-cell/mlsd-project
 
 ---
 
