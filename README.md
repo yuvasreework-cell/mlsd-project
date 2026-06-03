@@ -1,4 +1,4 @@
-# 🫀 Heart Disease Prediction — MLOps Pipeline
+# Heart Disease Prediction — MLOps Pipeline
 
 <div align="center">
 
@@ -14,23 +14,23 @@
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
 This project demonstrates a complete **Machine Learning System Design (MLSD)** pipeline using the UCI Cleveland Heart Disease Dataset. It predicts whether a patient has heart disease based on 13 clinical features, and deploys the prediction model through a full MLOps stack.
 
 ### Why Heart Disease Prediction?
 | Criterion | Why It Fits |
 |-----------|-------------|
-| 🎯 Problem Type | Binary Classification |
-| 📊 Dataset | UCI Cleveland (public, famous, 303 records) |
-| ⚡ Training Speed | < 5 seconds |
-| 📈 Visualizations | Confusion matrix, ROC curve, feature importance |
-| 🖥️ Deployment | Streamlit (interactive prediction UI) |
-| 🎓 Academic Context | Standard ML curriculum dataset |
+| Problem Type | Binary Classification |
+| Dataset | UCI Cleveland (public, famous, 303 records) |
+| Training Speed | < 5 seconds |
+| Visualizations | Confusion matrix, ROC curve, feature importance |
+| Deployment | Streamlit (interactive prediction UI) |
+| Academic Context | Standard ML curriculum dataset |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -77,7 +77,7 @@ This project demonstrates a complete **Machine Learning System Design (MLSD)** p
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 mlsd-project/
@@ -130,7 +130,7 @@ mlsd-project/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -161,7 +161,7 @@ Open [http://localhost:8501](http://localhost:8501)
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 pytest tests/test_pipeline.py -v
@@ -171,7 +171,7 @@ Expected output: All tests pass ✅
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ### Build Image
 ```bash
@@ -190,7 +190,7 @@ docker pull yuvasreedock/heart-disease-mlops:latest
 
 ---
 
-## ☸️ Kubernetes Deployment
+## Kubernetes Deployment
 
 ### Prerequisites
 - kubectl configured
@@ -222,7 +222,7 @@ kubectl top pods
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 | Metric | Score |
 |--------|-------|
@@ -236,7 +236,7 @@ kubectl top pods
 
 ---
 
-## 🔄 GitHub Actions CI
+## GitHub Actions CI
 
 The pipeline automatically triggers on every push to `main`:
 
@@ -259,7 +259,7 @@ DOCKERHUB_TOKEN    = <your DockerHub access token>
 
 ---
 
-## 📋 Dataset Information
+## Dataset Information
 
 **UCI Cleveland Heart Disease Dataset**
 
@@ -286,7 +286,7 @@ DOCKERHUB_TOKEN    = <your DockerHub access token>
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Component | Technology |
 |-----------|-----------|
@@ -302,7 +302,7 @@ DOCKERHUB_TOKEN    = <your DockerHub access token>
 
 ---
 
-## 👤 Author
+## Author
 
 **Yuvasree**  
 University MLSD Project — Heart Disease Prediction MLOps Pipeline
